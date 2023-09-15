@@ -1,0 +1,1 @@
+from .ing_transcribe import IngTranscribeCommand
