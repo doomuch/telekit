@@ -20,9 +20,13 @@ import typer
 
 app = typer.Typer()
 
-# Load client configuration
-with open('data/clients.json') as f:
+if not os.path.exists('data/clients.json'):
+    with open('data/clients.json', 'w') as f:
+        json.dump({}, f)
+
+with open('data/clients.json', 'r') as f:
     client_data = json.load(f)
+
 
 @app.command()
 def add_client(session: str):

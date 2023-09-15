@@ -1,0 +1,4 @@
+Typer==0.9.0
+Telethon==1.29.2
+cryptg==0.2
+openai==0.27.8
