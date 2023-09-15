@@ -1,14 +1,18 @@
+import os
 from io import BytesIO
 
+from telethon import TelegramClient, events
 from telethon.errors import MessageTooLongError, MediaCaptionTooLongError, MessageNotModifiedError, \
     MessageDeleteForbiddenError
 
-from commands import IngTranscribeCommand
+from commands import IngTranscribeCommand, IngGPTCommand
 from utils import CustomMarkdown
 from functools import wraps
 
 import logging
+
 logging.basicConfig(level=logging.INFO)
+
 
 class CommandFactory:
     """
@@ -172,6 +176,16 @@ class ClientHandler:
         self.command_classes = command_classes
         self.event_handler = EventHandler(self)
 
+    async def _register_event_handlers(self):
+        @self.client.on(events.NewMessage(incoming=False))
+        async def event_listener(event):
+            await self.handle_event(event)
+
+        logging.info("ClientHandler initialized.")
+
+    async def start(self):
+        await self._register_event_handlers()
+        await self.client.start()
     async def handle_event(self, event):
         await self.event_handler.handle(event)
 
@@ -205,9 +219,11 @@ class ClientHandler:
         return wrapper
 
     @emoji_parser
-    async def edit_message(self, peer_id, message_id, new_text , parse_mode=None, link_preview=None, file=None, force_document=None):
+    async def edit_message(self, peer_id, message_id, new_text, parse_mode=None, link_preview=None, file=None,
+                           force_document=None):
         try:
-            await self.client.edit_message(peer_id, message_id, new_text, link_preview=link_preview, file=file, force_document=force_document, parse_mode=parse_mode)
+            await self.client.edit_message(peer_id, message_id, new_text, link_preview=link_preview, file=file,
+                                           force_document=force_document, parse_mode=parse_mode)
         except MediaCaptionTooLongError:
             await self.send_text_as_file(peer_id, new_text, "transcription.txt")
         except MessageNotModifiedError:
@@ -220,15 +236,17 @@ class ClientHandler:
         if len(message) > 4096:
             await self.send_text_as_file(peer_id, message, "transcription.txt")
         else:
-            await self.client.send_message(peer_id, message, parse_mode=parse_mode, link_preview=link_preview, file=file, force_document=force_document)
+            await self.client.send_message(peer_id, message, parse_mode=parse_mode, link_preview=link_preview,
+                                           file=file, force_document=force_document)
 
     @emoji_parser
-    async def reply_message(self, peer_id, message, reply_to, parse_mode=None, link_preview=None, file=None, force_document=None):
+    async def reply_message(self, peer_id, message, reply_to, parse_mode=None, link_preview=None, file=None,
+                            force_document=None):
         if len(message) > 4096:
             await self.send_text_as_file(peer_id, message, "transcription.txt", reply_to=reply_to)
         else:
-            await self.client.send_message(peer_id, message, reply_to=reply_to, parse_mode=parse_mode, link_preview=link_preview, file=file, force_document=force_document)
-
+            await self.client.send_message(peer_id, message, reply_to=reply_to, parse_mode=parse_mode,
+                                           link_preview=link_preview, file=file, force_document=force_document)
 
     async def get_message_by_id(self, peer_id, ids):
         return await self.client.get_messages(peer_id, ids=ids)
@@ -240,3 +258,17 @@ class ClientHandler:
 
             return filename if filename else None
 
+
+class ClientFactory():
+    @staticmethod
+    def create_client(client_data) -> 'ClientHandler':
+        session_location_prefix = 'data/sessions/'
+        api_id = os.getenv("API_ID")
+        api_hash = os.getenv("API_HASH")
+        session_name = client_data.get("session_name")
+        client = TelegramClient(session_location_prefix + session_name + ".session", api_id, api_hash)
+
+        command_objects = [eval(command) for command in client_data['commands']]
+        handler = ClientHandler(client, command_objects)
+
+        return handler

@@ -1,6 +1,7 @@
 # this bot is inteded to transcribe all voice and video messages sent by user, using telethon
+import json
 import os
-from telethon import TelegramClient, events
+import asyncio
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -14,27 +15,80 @@ logging.basicConfig(level=logging.INFO)
 
 from commands import IngTranscribeCommand, IngGPTCommand
 
-from control import ClientHandler
+from control import ClientHandler, ClientFactory
+import typer
 
-ruby_client = TelegramClient('ruby.session', api_key, api_hash)
-ruby_commands = [IngTranscribeCommand, IngGPTCommand]
-ruby_handler = ClientHandler(ruby_client, ruby_commands)
+app = typer.Typer()
 
-client = TelegramClient('session_name.session', api_key, api_hash)
-client_commands = [IngTranscribeCommand, IngGPTCommand]
-client_handler = ClientHandler(client, client_commands)
+# Load client configuration
+with open('data/clients.json') as f:
+    client_data = json.load(f)
+
+@app.command()
+def add_client(session: str):
+    """
+    Add a client to the client data based on user input for a session name. The commands will be standard.
+
+    :param session: str The session name for the new client.
+    :return: None
+    """
+    new_client = {
+            "session_name": session,
+            "commands": ["IngTranscribeCommand", "IngGPTCommand"]
+        }
+    client_data.append(new_client)
+    # save json
+    with open('data/clients.json', 'w') as f:
+        json.dump(client_data, f, indent=4)
+
+    print(f"Added new client with session name: {session}")
+
+@app.command()
+def delete_client():
+    print("Here are the available clients:")
+    for index, client in enumerate(client_data, start=1):
+        print(f"{index}. {client['session_name']}")
+
+    session = typer.prompt("Please enter the session name of the client you want to delete")
+    client_data[:] = [client for client in client_data if client.get("session_name") != session]
+    print(client_data)
+
+    with open('data/clients.json', 'w') as f:
+        json.dump(client_data, f, indent=4)
+    print(f"Deleted client with session name: {session}")
 
 
-@ruby_client.on(events.NewMessage(incoming=False))
-async def client2_event_listener(event):
-    await ruby_handler.handle_event(event)
+@app.command()
+def start_program():
+    """
+    Starts the main program after updating the client_data with added and/or deleted clients
+    :return: None
+    """
+    loop = asyncio.get_event_loop()
 
-@client.on(events.NewMessage(incoming=False))
-async def client1_event_listener(event):
-    await client_handler.handle_event(event)
+    try:
+        # Schedule the main coroutine and the do_nothing coroutine
+        asyncio.ensure_future(main())
+        asyncio.ensure_future(do_nothing())
+
+        loop.run_forever()
+    except KeyboardInterrupt:
+        loop.stop()
 
 
-client.start()
-ruby_client.start()
-print("bot started")
-client.run_until_disconnected()
+async def main():
+    client_handlers = {}
+    for config in client_data:
+        client = ClientFactory.create_client(config)
+        await client.start()
+    print("bot started")
+
+
+async def do_nothing():
+    while True:
+        await asyncio.sleep(1)
+
+
+if __name__ == "__main__":
+    app()
+
