@@ -14,6 +14,16 @@ import logging
 logging.basicConfig(level=logging.INFO)
 
 
+def emoji_parser(func):
+    @wraps(func)
+    async def wrapper(self, *args, **kwargs):
+        parse_mode = kwargs.get('parse_mode', None) or self.client.parse_mode
+        kwargs['parse_mode'] = parse_mode
+        return await func(self, *args, **kwargs)
+
+    return wrapper
+
+
 class CommandFactory:
     """
         Factory class responsible for creating command instances based on the provided command name.
@@ -186,6 +196,7 @@ class ClientHandler:
     async def start(self):
         await self._register_event_handlers()
         await self.client.start()
+
     async def handle_event(self, event):
         await self.event_handler.handle(event)
 
@@ -207,16 +218,6 @@ class ClientHandler:
             await self.client.delete_messages(peer_id, message_id)
         except MessageDeleteForbiddenError:
             logging.warning("Message delete forbidden")
-
-    @staticmethod
-    def emoji_parser(func):
-        @wraps(func)
-        async def wrapper(self, *args, **kwargs):
-            parse_mode = kwargs.get('parse_mode', None) or self.client.parse_mode
-            kwargs['parse_mode'] = parse_mode
-            return await func(self, *args, **kwargs)
-
-        return wrapper
 
     @emoji_parser
     async def edit_message(self, peer_id, message_id, new_text, parse_mode=None, link_preview=None, file=None,
