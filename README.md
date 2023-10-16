@@ -1,4 +1,4 @@
-## ingenTelegram_ing
+## Telekit
 A Telegram automation client built with Python's Telethon library. Currently supports:
 1. Automatically transcribing your own voice messages.
 2. Using shortcut to transcribe other people's voice messages.
@@ -38,17 +38,17 @@ A Telegram automation client built with Python's Telethon library. Currently sup
 ### Usage
 To add a client with a specific session name:
 ```bash
-python main.py add_client my_session
+python main.py add-client my_session
 ```
 
 To delete a client:
 ```bash
-python main.py delete_client
+python main.py delete-client
 ```
 
 To start the program:
 ```bash
-python main.py start_program
+python main.py start-program
 ```
 
 ### Features
