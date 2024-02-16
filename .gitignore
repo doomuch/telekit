@@ -1,5 +1,4 @@
-
-
 /data/
 .env
 *.session
+/.idea
