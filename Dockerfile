@@ -12,6 +12,7 @@ RUN apt-get update && apt-get install -y \
 COPY . /app
 
 # Create clients.json file with default content
+RUN mkdir -p /app/data/sessions
 RUN touch /app/data/clients.json
 
 # Install Python dependencies
