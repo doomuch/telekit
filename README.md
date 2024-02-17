@@ -65,6 +65,12 @@ python app.py start-program
 
 #### From Docker
 
+Build docker image:
+
+```bash
+sudo docker build -t telekit .
+```
+
 To run docker container:
 
 ```bash
