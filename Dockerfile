@@ -11,8 +11,8 @@ RUN apt-get update && apt-get install -y \
 # Copy the current directory contents into the container at /app
 COPY . /app
 
-# Create necessary directories
-RUN mkdir -p /app/data/sessions
+# Create clients.json file with default content
+RUN touch /app/data/clients.json
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
@@ -28,4 +28,4 @@ ENV NAME API_ID
 ENV NAME API_HASH
 
 # Run app.py when the container launches
-CMD ["python", "app.py", "start-program"]
+CMD ["sh", "-c", "python app.py start-program & wait"]
