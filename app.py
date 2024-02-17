@@ -28,6 +28,8 @@ clients_file_path = os.path.join(data_dir, 'clients.json') # path/to/clients.jso
 if not os.path.exists(clients_file_path):
     with open(clients_file_path, 'w') as f:
         json.dump({}, f)
+else:
+    client_data = []
 
 with open(clients_file_path, 'r') as f:
     client_data = json.load(f)
