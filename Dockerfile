@@ -20,7 +20,7 @@ RUN pip install python-dotenv
 RUN pip install pydub
 
 # Add a client with session name "Initial session"
-# RUN python app.py add-client "Initial session"
+RUN python app.py add-client "Initial session"
 
 # Make port 80 available to the world outside this container
 EXPOSE 80
