@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y \
 COPY . /app
 
 # Create necessary directories
-RUN mkdir -p /app/data
+RUN mkdir -p /app/data/sessions
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
@@ -31,4 +31,4 @@ ENV NAME API_ID
 ENV NAME API_HASH
 
 # Run app.py when the container launches
-CMD ["python", "app.py", , "start-program"]
+CMD ["python", "app.py", "start-program"]
