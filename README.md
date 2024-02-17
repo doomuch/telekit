@@ -46,19 +46,19 @@ A Telegram automation client built with Python's Telethon library. Currently sup
 To add a client with a specific session name:
 
 ```bash
-python main.py add-client my_session
+python app.py add-client my_session
 ```
 
 To delete a client:
 
 ```bash
-python main.py delete-client
+python app.py delete-client
 ```
 
 To start the program:
 
 ```bash
-python main.py start-program
+python app.py start-program
 ```
 
 ### Features

@@ -263,11 +263,11 @@ class ClientHandler:
 class ClientFactory():
     @staticmethod
     def create_client(client_data) -> 'ClientHandler':
-        session_location_prefix = 'data/sessions/'
+        sessions_location_directory = '/app/data/sessions/'
         api_id = os.getenv("API_ID")
         api_hash = os.getenv("API_HASH")
         session_name = client_data.get("session_name")
-        client = TelegramClient(session_location_prefix + session_name + ".session", api_id, api_hash)
+        client = TelegramClient(sessions_location_directory + session_name + ".session", api_id, api_hash)
 
         command_objects = [eval(command) for command in client_data['commands']]
         handler = ClientHandler(client, command_objects)
