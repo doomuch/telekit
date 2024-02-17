@@ -43,6 +43,8 @@ A Telegram automation client built with Python's Telethon library. Currently sup
 
 ### Usage
 
+#### From Commandline
+
 To add a client with a specific session name:
 
 ```bash
@@ -60,6 +62,30 @@ To start the program:
 ```bash
 python app.py start-program
 ```
+
+#### From Docker
+
+To run docker container:
+
+```bash
+sudo docker run -d -p 4000:80 --env-file .env -v ./data:/app/data -v ./data/sessions:/app/data/sessions --name telekit telekit
+```
+
+It runs `start-program` command on startup so if you already has a session, you don't need to run `start-program` again.
+
+To init a new session (replace {SESSION_NAME} with your session name):
+
+```bash
+sudo docker exec telekit python /app/app.py add-client {SESSION_NAME}
+```
+
+After that you need to run `start-program` and proceed Telegram authentication:
+
+```bash
+sudo docker exec -it telekit python /app/app.py add-client session
+```
+
+After entering the necessary information interactively, you can exit the interactive session without stopping the Python script by pressing `Ctrl + P` or `Ctrl + Q`. This key combination detaches from the container without terminating the running process.
 
 ### Features
 
