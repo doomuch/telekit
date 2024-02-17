@@ -88,7 +88,7 @@ sudo docker exec telekit python /app/app.py add-client {SESSION_NAME}
 After that you need to run `start-program` and proceed Telegram authentication:
 
 ```bash
-sudo docker exec -it telekit python /app/app.py add-client session
+sudo docker exec -it telekit python /app/app.py start-program
 ```
 
 After entering the necessary information interactively, you can exit the interactive session without stopping the Python script by pressing `Ctrl + P` or `Ctrl + Q`. This key combination detaches from the container without terminating the running process.
