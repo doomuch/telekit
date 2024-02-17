@@ -20,11 +20,16 @@ import typer
 
 app = typer.Typer()
 
-if not os.path.exists('data/clients.json'):
-    with open('data/clients.json', 'w') as f:
+# Ensure the 'data' directory exists
+data_dir = 'data'
+os.makedirs(data_dir, exist_ok=True)
+clients_file_path = os.path.join(data_dir, 'clients.json') # path/to/clients.json
+
+if not os.path.exists(clients_file_path):
+    with open(clients_file_path, 'w') as f:
         json.dump({}, f)
 
-with open('data/clients.json', 'r') as f:
+with open(clients_file_path, 'r') as f:
     client_data = json.load(f)
 
 
@@ -42,7 +47,7 @@ def add_client(session: str):
         }
     client_data.append(new_client)
     # save json
-    with open('data/clients.json', 'w') as f:
+    with open(clients_file_path, 'w') as f:
         json.dump(client_data, f, indent=4)
 
     print(f"Added new client with session name: {session}")
@@ -57,7 +62,7 @@ def delete_client():
     client_data[:] = [client for client in client_data if client.get("session_name") != session]
     print(client_data)
 
-    with open('data/clients.json', 'w') as f:
+    with open(clients_file_path, 'w') as f:
         json.dump(client_data, f, indent=4)
     print(f"Deleted client with session name: {session}")
 
